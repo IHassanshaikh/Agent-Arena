@@ -1,0 +1,19 @@
+{
+  "name": "@agentarena/trace-contract",
+  "version": "1.0.0",
+  "description": "Standard event schemas, types, and pricing catalog for AgentArena",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx --test test/contract.test.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/node": "^22.5.0"
+  }
+}
+

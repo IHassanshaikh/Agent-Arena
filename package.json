@@ -1,0 +1,32 @@
+{
+  "name": "agentarena-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AgentArena: Live Execution Traces - Observability & Benchmark Flight Recorder for AI Agents",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "start:api": "npm run start --workspace=apps/api",
+    "start:web": "npm run start --workspace=apps/web",
+    "test": "npm run test --workspaces --if-present",
+    "test:contract": "npm run test --workspace=packages/trace-contract",
+    "test:api": "npm run test --workspace=apps/api",
+    "seed": "npm run seed --workspace=apps/api",
+    "demo:runner": "python services/agent-runner/agent_runner.py"
+  },
+  "keywords": [
+    "agentarena",
+    "observability",
+    "ai-agents",
+    "traces",
+    "llm-flight-recorder"
+  ],
+  "author": "AgentArena Team",
+  "license": "Apache-2.0"
+}
+
