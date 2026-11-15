@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentArena - Hackathon Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --card-bg: #11141d;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
+    }
+
+    .deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      width: 90vw;
+      max-width: 1200px;
+      height: 85vh;
+      max-height: 720px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 48px 56px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .category-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .pill-green {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--accent-green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .slide-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--card-border);
+      padding-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls Bar */
+    .controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #161a26;
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 100;
+    }
+
+    .btn-nav {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-nav:hover { background: rgba(255,255,255,0.1); }
+    .counter { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent-blue); }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+
+    <!-- SLIDE 1: Hero -->
+    <div class="slide active">
+      <div class="slide-header">
+        <span class="pill-green">● LIVE AGENT OBSERVABILITY</span>
+        <h1 class="slide-title" style="font-size: 3.5rem; margin-top: 16px;">AgentArena</h1>
+        <p style="font-size: 1.3rem; color: var(--accent-blue); font-weight: 600;">Live Execution Traces & Benchmark Flight Recorder for Autonomous AI Agents</p>
+      </div>
+      <div class="slide-body">
+        <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.8; max-width: 800px;">
+          Autonomous AI agents fail silently inside multi-step black boxes. AgentArena gives developers an unslop, developer-grade flight recorder with real-time DAG execution topology, live interactive artifact sandboxing, and comparative benchmark telemetry.
+        </p>
+      </div>
+      <div class="slide-footer">
+        <span>GEEK ROOM AI GLOBAL HACKATHON 2026</span>
+        <span>Google Gemini 2.5 Flash • Next.js 14 • Embedded SQL PGlite</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: The Problem -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Industry Challenge</span>
+        <h2 class="slide-title">The Autonomous Agent Black Box Crisis</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">01. Silent Failures</h3>
+            <p>Agents loop endlessly, call non-existent tools, or fail during syntax checks without actionable error context or parent-child trace spans.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">02. Mismatched APM</h3>
+            <p>Datadog and Prometheus were built for microservices, not non-deterministic multi-agent graphs, dynamic retry backoffs, or LLM tokens.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">03. Cost Blindness</h3>
+            <p>Runaway retries and prompt bloat trigger massive token spikes and latency bottlenecks with zero real-time visibility.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 2 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: The Solution -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Value Proposition</span>
+        <h2 class="slide-title">The Complete Agent Observability Solution</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">✓ Live DAG Execution Topology</h3>
+            <p>Interactive graph streaming worker states, model gateway dispatches, and tool operations with sub-millisecond Socket.IO telemetry.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">✓ Live Sandboxed Result Preview</h3>
+            <p>Full-fidelity interactive iframe rendering of generated HTML/CSS/JS (Desktop, Tablet, Mobile) and formatted documents right in the dashboard.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">✓ Zero-Docker Embedded Database</h3>
+            <p>Embedded SQL engine powered by @electric-sql/pglite. Persists all runs and traces locally with zero external database configuration.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">✓ Self-Healing & Retry Profiler</h3>
+            <p>Automated syntax validation with Google Gemini 2.5 Flash, measuring recovery latencies, exponential backoff, and success rates.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 3 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Architecture -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">System Design</span>
+        <h2 class="slide-title">End-to-End Technical Architecture</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-4">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Agent Runner</h3>
+            <p style="font-size: 0.8rem; font-family: monospace; color: var(--accent-blue);">services/agent-runner</p>
+            <p>Autonomous Python runner integrated with Gemini 2.5 Flash live API. Generates full multi-kilobyte code and artifacts.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">Ingestion Engine</h3>
+            <p style="font-size: 0.8rem; font-family: monospace; color: var(--accent-amber);">apps/api</p>
+            <p>Validates OpenTelemetry trace events with canonical Zod schema contracts and PII redaction pipeline.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">Embedded SQL</h3>
+            <p style="font-size: 0.8rem; font-family: monospace; color: var(--accent-green);">@electric-sql/pglite</p>
+            <p>In-process relational PostgreSQL database. Zero cloud dependencies, lightning-fast queries, and 100% data persistence.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Studio UI</h3>
+            <p style="font-size: 0.8rem; font-family: monospace; color: var(--accent-blue);">apps/web (Next.js 14)</p>
+            <p>Pure black unslop developer studio with ReactFlow DAG visualization, Gantt waterfalls, and live sandboxed iframe preview.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 4 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Key Innovations -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Engineering Excellence</span>
+        <h2 class="slide-title">Key Technical Innovations</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Dynamic Multi-Kilobyte Code Generation</h3>
+            <p>Autonomous planning translates arbitrary user prompts directly into production-grade HTML/CSS/JS or Python applications with verified syntax checking.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">Simultaneous Split-View Telemetry</h3>
+            <p>Inspect the complete systems execution DAG on the left while simultaneously testing and interacting with the rendered output on the right.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">Fault Resilience Flight Recorder</h3>
+            <p>Tracks transient timeouts, retry schedules, and automated self-healing without breaking flow, scoring agent durability under real-world conditions.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Unslopped Developer Craft</h3>
+            <p>Designed strictly under the unslop design standard: pure pitch-black (#000000), tabular monospace numerals, hairline borders, and zero AI marketing slop.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 5 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Demo Walkthrough -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">User Journey</span>
+        <h2 class="slide-title">Live Product Demo Walkthrough</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-4">
+          <div class="feature-card">
+            <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-blue);">01</span>
+            <h3>Prompt Input</h3>
+            <p>Enter any instruction: e.g. "Build an HTML landing page for a dentist", "make a game", or "explain quantum computing".</p>
+          </div>
+          <div class="feature-card">
+            <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-amber);">02</span>
+            <h3>Reasoning DAG</h3>
+            <p>Gemini 2.5 Flash formulates a plan, maps tools (write_html_page, validate_html), and streams trace events over Socket.IO.</p>
+          </div>
+          <div class="feature-card">
+            <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-green);">03</span>
+            <h3>Execution Flow</h3>
+            <p>Watch nodes connect live from Prompt → Agent Decision → Model Gateway → Tool Validation → Verified Artifact.</p>
+          </div>
+          <div class="feature-card">
+            <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-blue);">04</span>
+            <h3>Live Preview</h3>
+            <p>Switch to "Result" tab or "Split View" to interact directly with the generated website, copy code, or export to tab.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 6 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Benchmarks -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Comparative Observability</span>
+        <h2 class="slide-title">A/B Benchmark Flight Comparison</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Head-to-Head Agent Comparison</h3>
+            <p>Run identical benchmark tasks across different LLM backends (Gemini 2.5 Flash vs Claude vs GPT-4o) and compare execution traces side-by-side.</p>
+            <ul style="margin-left: 20px; color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; line-height: 1.6;">
+              <li>Token consumption deltas ($0.0001 resolution)</li>
+              <li>Latency breakdown (Inference vs Tool time)</li>
+              <li>Retry recovery rate and resiliency scoring</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">Automated Winner Scoring</h3>
+            <p>Deterministic evaluation algorithms score runs based on cost efficiency, execution speed, and error-free completion.</p>
+            <ul style="margin-left: 20px; color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; line-height: 1.6;">
+              <li>Catches prompt regressions before release</li>
+              <li>Exports full JSON traces for team postmortems</li>
+              <li>Replay exact sequences matching payload diffs</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 7 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Market -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Market Opportunity</span>
+        <h2 class="slide-title">Target Audience & Market Potential</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">AI Agent Engineers</h3>
+            <p>Engineers creating autonomous agents using LangChain, LangGraph, CrewAI, AutoGen, or custom tool APIs who lack visual debugging tools.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">Enterprise AI Teams</h3>
+            <p>Engineering teams deploying customer-facing AI workflows requiring compliance, auditability, cost governance, and deterministic replays.</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">$4.8B Market</h3>
+            <p>The AI observability and evaluation market is expanding rapidly at 38% CAGR as software moves from static chatbots to autonomous agent workflows.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 8 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Roadmap -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="category-tag">Future Vision</span>
+        <h2 class="slide-title">Roadmap & Future Evolution</h2>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="feature-card">
+            <h3 style="color: var(--accent-green);">Phase 1: Present (Hackathon)</h3>
+            <p>• Live Gemini 2.5 Flash API execution<br>• Real-time DAG topology streaming<br>• Embedded SQL database<br>• Live sandboxed HTML/code preview</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-blue);">Phase 2: Swarm & OTel</h3>
+            <p>• Multi-agent swarm topology (10+ nodes)<br>• OpenTelemetry OTLP standard export<br>• Langfuse & Arize Phoenix integrations<br>• Automated cost ceiling circuit breakers</p>
+          </div>
+          <div class="feature-card">
+            <h3 style="color: var(--accent-amber);">Phase 3: Auto-Tuning</h3>
+            <p>• Autonomous prompt optimizer<br>• Self-tuning retry policies<br>• Team workspaces & cloud sync<br>• Automated regression regression alerts</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>AgentArena Pitch Deck</span>
+        <span>Slide 9 / 10</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Call to Action -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="pill-green">● SUBMISSION READY</span>
+        <h1 class="slide-title" style="font-size: 3rem; margin-top: 16px;">AgentArena: The Future of Agent Observability</h1>
+      </div>
+      <div class="slide-body">
+        <div style="display: flex; flex-direction: column; gap: 16px; font-size: 1.15rem; color: var(--text-muted); line-height: 1.8;">
+          <p style="color: #fff; font-size: 1.3rem; font-weight: 600;">
+            Don't let autonomous agents remain black boxes. Debug, benchmark, and visualize with flight-recorder precision.
+          </p>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 24px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;">
+            <p>• GitHub: <strong style="color: var(--accent-blue);">https://github.com/IHassanshaikh/Agent-Arena</strong></p>
+            <p>• Web Dashboard: <strong style="color: var(--accent-green);">http://localhost:3000</strong></p>
+            <p>• Ingestion API: <strong style="color: var(--accent-amber);">http://localhost:4000</strong></p>
+            <p>• Hackathon: <strong>Geek Room AI Global Hackathon 2026</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Ready for Judge Evaluation</span>
+        <span>Press [F] for Fullscreen • [← / →] to Navigate</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-nav" id="prevBtn" title="Previous Slide (Left Arrow)">◀</button>
+    <span class="counter" id="slideCounter">1 / 10</span>
+    <button class="btn-nav" id="nextBtn" title="Next Slide (Right Arrow)">▶</button>
+    <button class="btn-nav" id="fsBtn" title="Toggle Fullscreen">⛶</button>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('slideCounter');
+    let current = 0;
+
+    function showSlide(idx) {
+      slides[current].classList.remove('active');
+      current = (idx + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      counter.textContent = `${current + 1} / ${slides.length}`;
+    }
+
+    document.getElementById('prevBtn').onclick = () => showSlide(current - 1);
+    document.getElementById('nextBtn').onclick = () => showSlide(current + 1);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') showSlide(current + 1);
+      if (e.key === 'ArrowLeft') showSlide(current - 1);
+      if (e.key.toLowerCase() === 'f') {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+    });
+
+    document.getElementById('fsBtn').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    };
+  </script>
+</body>
+</html>
