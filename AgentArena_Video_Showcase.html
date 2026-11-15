@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentArena — Hackathon Demo Video & Interactive Showcase</title>
+  <style>
+    :root {
+      --bg: #05070c;
+      --card-bg: #0c101a;
+      --border: #1e2638;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-red: #f43f5e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* Top Bar */
+    header {
+      background: rgba(12, 16, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-beacon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 12px var(--accent-green);
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--accent-cyan);
+      font-family: ui-monospace, monospace;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      background: #151c2c;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #1e283d;
+      border-color: var(--accent-cyan);
+    }
+    .btn-primary {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: #05070c;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #22d3ee;
+    }
+    
+    /* Layout */
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Video Player Card */
+    .player-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .video-viewport {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .player-meta {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .player-meta-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .player-meta-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .narration-box {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: #080c14;
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 4px;
+      font-size: 13px;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .voiceover-toggle {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--accent-green);
+      cursor: pointer;
+    }
+
+    /* Chapter Sidebar */
+    .sidebar-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+    }
+    .sidebar-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chapter-list {
+      list-style: none;
+      padding: 10px 0;
+    }
+    .chapter-item {
+      padding: 12px 20px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .chapter-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .chapter-item.active {
+      background: rgba(6, 182, 212, 0.08);
+      border-left-color: var(--accent-cyan);
+    }
+    .chapter-time {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--accent-cyan);
+      background: #111726;
+      padding: 2px 6px;
+      border-radius: 4px;
+      height: fit-content;
+    }
+    .chapter-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .chapter-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Quick Stats */
+    .stats-card {
+      margin-top: 20px;
+      background: #080b12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+    .stat-label {
+      color: var(--text-muted);
+    }
+    .stat-val {
+      font-family: ui-monospace, monospace;
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--bg);
+    }
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header>
+    <div class="brand">
+      <div class="brand-beacon"></div>
+      <span class="brand-title">AgentArena</span>
+      <span class="badge">HACKATHON DEMO VIDEO</span>
+    </div>
+    <div class="header-actions">
+      <a href="http://localhost:3000" target="_blank" class="btn">
+        <span>Open Live App</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      </a>
+      <a href="AgentArena_Pitch_Deck.html" target="_blank" class="btn">
+        <span>Pitch Deck</span>
+      </a>
+      <a href="AgentArena_Demo.mp4" download="AgentArena_Demo.mp4" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>Download MP4 (1080p)</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Showcase Container -->
+  <div class="container">
+    
+    <!-- Player Column -->
+    <div class="player-card">
+      <div class="video-viewport">
+        <video id="demoVideo" controls preload="metadata" poster="video_frames_raw/02_topology.png">
+          <source src="AgentArena_Demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="player-meta">
+        <div class="player-meta-title">
+          <span id="activeTitle">Scene 1: Introduction to AgentArena</span>
+          <span class="badge" id="videoResolution">1080p • 30 FPS • Full HD</span>
+        </div>
+        <p class="player-meta-desc" id="activeDesc">
+          AgentArena is the flight recorder and benchmark arena for multi-step autonomous AI agents. Real-time DAG visualizer, streaming telemetry, and automated retry recovery.
+        </p>
+
+        <!-- Dynamic Narration / Voiceover Box -->
+        <div class="narration-box">
+          <div id="narrationText">
+            "Welcome to AgentArena. The open-source flight recorder that gives developers complete visibility into autonomous AI agent execution."
+          </div>
+          <button class="voiceover-toggle" id="speakBtn" onclick="toggleSpeech()">
+            🔊 Speak Narration
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter Navigation Sidebar -->
+    <div class="sidebar-card">
+      <div class="sidebar-header">
+        <span>Video Chapters</span>
+        <span style="color: var(--accent-cyan); font-family: monospace;">68s Total</span>
+      </div>
+
+      <ul class="chapter-list" id="chapterList">
+        <li class="chapter-item active" onclick="seekTo(0, 0)">
+          <span class="chapter-time">0:00</span>
+          <div class="chapter-info">
+            <h4>1. Cold Open & Title</h4>
+            <p>Geek Room AI Hackathon introduction & mission.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(7, 1)">
+          <span class="chapter-time">0:07</span>
+          <div class="chapter-info">
+            <h4>2. The Black Box Problem</h4>
+            <p>Why silent agent cascades cost developers thousands.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(15, 2)">
+          <span class="chapter-time">0:15</span>
+          <div class="chapter-info">
+            <h4>3. Live DAG Flow</h4>
+            <p>Interactive topology graph with SSE real-time streaming.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(27, 3)">
+          <span class="chapter-time">0:27</span>
+          <div class="chapter-info">
+            <h4>4. Deep Trace & Failover</h4>
+            <p>Step-by-step latency, token counts & retry recovery.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(37, 4)">
+          <span class="chapter-time">0:37</span>
+          <div class="chapter-info">
+            <h4>5. Split-View Sandbox</h4>
+            <p>Inspect source code and rendered HTML live side-by-side.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(49, 5)">
+          <span class="chapter-time">0:49</span>
+          <div class="chapter-info">
+            <h4>6. Benchmark Arena</h4>
+            <p>Side-by-side agent comparison, latency, and cost battle.</p>
+          </div>
+        </li>
+
+        <li class="chapter-item" onclick="seekTo(60, 6)">
+          <span class="chapter-time">1:00</span>
+          <div class="chapter-info">
+            <h4>7. Tech Stack & Outro</h4>
+            <p>Next.js 14, React Flow, FastAPI & GitHub repository.</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="stats-card">
+        <div class="stat-row">
+          <span class="stat-label">Video Format</span>
+          <span class="stat-val">MP4 (H.264 / mp4v)</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Resolution</span>
+          <span class="stat-val">1920 × 1080 (16:9)</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Duration</span>
+          <span class="stat-val">68 Seconds</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">File Size</span>
+          <span class="stat-val">81.6 MB</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Repository</span>
+          <span class="stat-val">github.com/IHassanshaikh/Agent-Arena</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div>
+      AgentArena — Hackathon Submission for Geek Room AI Global Hackathon. MIT Licensed.
+    </div>
+    <div>
+      <a href="https://github.com/IHassanshaikh/Agent-Arena" target="_blank">GitHub Repository ↗</a>
+    </div>
+  </footer>
+
+  <script>
+    const video = document.getElementById('demoVideo');
+    const chapterItems = document.querySelectorAll('.chapter-item');
+    const activeTitle = document.getElementById('activeTitle');
+    const activeDesc = document.getElementById('activeDesc');
+    const narrationText = document.getElementById('narrationText');
+
+    const chapters = [
+      {
+        time: 0,
+        title: "Scene 1: Introduction to AgentArena",
+        desc: "AgentArena is the flight recorder and benchmark arena for autonomous AI agents. Real-time DAG visualizer, streaming telemetry, and automated retry recovery.",
+        narration: "Welcome to AgentArena. The open-source flight recorder that gives developers complete visibility into autonomous AI agent execution."
+      },
+      {
+        time: 7,
+        title: "Scene 2: The AI Agent Black Box Dilemma",
+        desc: "Autonomous agents execute recursive multi-step tool calls in opaque loops. Silent failures and unbounded token consumption occur with zero observability.",
+        narration: "When multi-step agents fail, loop endlessly, or hallucinate tool calls, developers get zero visibility. AgentArena solves this with full-stack observability."
+      },
+      {
+        time: 15,
+        title: "Scene 3: Live DAG Topology Flow",
+        desc: "Interactive DAG visualizer connects User Task to Planner, Model Gateway (Gemini 2.5 Flash), Tool execution, and verified output in real time.",
+        narration: "Here you see the live Directed Acyclic Graph topology. Every prompt, agent reasoning step, and tool execution streams in real-time over Server-Sent Events."
+      },
+      {
+        time: 27,
+        title: "Scene 4: Granular Trace & Retry Recovery",
+        desc: "Sub-second telemetry monitors duration, prompt tokens, completion tokens, and intercepting recovery layers for seamless resilience.",
+        narration: "Deep step-by-step telemetry: inspect exact LLM decisions, token consumption, and automatic retry recovery when a tool fails."
+      },
+      {
+        time: 37,
+        title: "Scene 5: Split-View Sandbox & Artifact Preview",
+        desc: "Dual pane allows inspecting raw generated code alongside a sandboxed live preview of HTML, CSS, JavaScript, and Markdown artifacts.",
+        narration: "Dual Split-View: Instantly inspect generated source code syntax while viewing the live sandboxed interactive preview on the right."
+      },
+      {
+        time: 49,
+        title: "Scene 6: Head-to-Head Benchmark Arena",
+        desc: "Compare agent architectures and foundation models on speed, token efficiency, cost, and reliability score with automated winner declaration.",
+        narration: "Run side-by-side benchmark battles. Measure latency, cost, and reliability across different agent architectures to declare the winning agent."
+      },
+      {
+        time: 60,
+        title: "Scene 7: Architecture & Tech Stack",
+        desc: "Next.js 14 App Router, React Flow (@xyflow/react), FastAPI backend, Gemini 2.5 Flash, and PGlite serverless database.",
+        narration: "Built with Next.js 14, React Flow, FastAPI, and Gemini 2.5 Flash. Open source and ready to deploy at github.com/IHassanshaikh/Agent-Arena."
+      }
+    ];
+
+    function seekTo(seconds, index) {
+      video.currentTime = seconds;
+      video.play();
+      updateChapterUI(index);
+    }
+
+    function updateChapterUI(index) {
+      chapterItems.forEach((item, i) => {
+        if (i === index) item.classList.add('active');
+        else item.classList.remove('active');
+      });
+      activeTitle.innerText = chapters[index].title;
+      activeDesc.innerText = chapters[index].desc;
+      narrationText.innerText = `"${chapters[index].narration}"`;
+    }
+
+    video.addEventListener('timeupdate', () => {
+      const cur = video.currentTime;
+      for (let i = chapters.length - 1; i >= 0; i--) {
+        if (cur >= chapters[i].time) {
+          updateChapterUI(i);
+          break;
+        }
+      }
+    });
+
+    let speaking = false;
+    function toggleSpeech() {
+      if (!('speechSynthesis' in window)) {
+        alert("Text-to-speech is not supported by your browser.");
+        return;
+      }
+      if (speaking) {
+        window.speechSynthesis.cancel();
+        speaking = false;
+        document.getElementById('speakBtn').innerText = "🔊 Speak Narration";
+      } else {
+        const text = narrationText.innerText.replace(/"/g, '');
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1.05;
+        utter.pitch = 1.0;
+        utter.onend = () => {
+          speaking = false;
+          document.getElementById('speakBtn').innerText = "🔊 Speak Narration";
+        };
+        window.speechSynthesis.speak(utter);
+        speaking = true;
+        document.getElementById('speakBtn').innerText = "⏹ Stop Voice";
+      }
+    }
+  </script>
+</body>
+</html>
