@@ -1,7 +1,8 @@
 # AGENTARENA — Live Execution Traces
 
 > Observability & Trace-Inspection Flight Recorder for Autonomous AI Agents.  
-> Built for the Geek Room AI Global Hackathon.
+> Built for the Geek Room AI Global Hackathon.  
+> **Live Production Dashboard**: [https://agent-arena-benchmark.vercel.app/](https://agent-arena-benchmark.vercel.app/)
 
 ---
 
