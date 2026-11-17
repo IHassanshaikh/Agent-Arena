@@ -2,16 +2,17 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { fetchRun, fetchRunEvents } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 import { TraceHeader } from '@/components/trace/TraceHeader';
 import { MetricsStrip } from '@/components/trace/MetricsStrip';
 import { TimelineView } from '@/components/trace/TimelineView';
 import { WaterfallView } from '@/components/trace/WaterfallView';
-import { AnalyticsView } from '@/components/trace/AnalyticsView';
 import { EventInspector } from '@/components/trace/EventInspector';
 import { ReplayControls } from '@/components/trace/ReplayControls';
-import { Layers, GitCommit, RefreshCw, AlertCircle, BarChart3 } from 'lucide-react';
+import { Layers, GitCommit, RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Logo } from '@/components/brand/Logo';
 
 export default function LiveTraceWorkspace() {
   const params = useParams();
@@ -20,7 +21,7 @@ export default function LiveTraceWorkspace() {
   const [run, setRun] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'waterfall' | 'analytics'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'waterfall'>('timeline');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +73,6 @@ export default function LiveTraceWorkspace() {
 
     const joinRoom = () => {
       socket.emit('run:join', { runId });
-      // Catch up any events missed during disconnect
       if (highestSequenceRef.current > 0) {
         fetchRunEvents(runId, highestSequenceRef.current).then((res) => {
           if (res?.events?.length > 0) {
@@ -94,7 +94,6 @@ export default function LiveTraceWorkspace() {
     }
     socket.on('connect', joinRoom);
 
-    // Event Ingestion Listener
     const handleTraceEvent = (newEvent: any) => {
       if (newEvent.run_id !== runId) return;
 
@@ -107,7 +106,6 @@ export default function LiveTraceWorkspace() {
         return updated;
       });
 
-      // Update run status if terminal event
       if (newEvent.event_type === 'run.completed') {
         setRun((prev: any) => prev ? { ...prev, status: 'completed' } : prev);
       } else if (newEvent.event_type === 'run.failed') {
@@ -115,7 +113,6 @@ export default function LiveTraceWorkspace() {
       }
     };
 
-    // Metrics Update Listener
     const handleMetricsUpdate = (data: { runId: string; metrics: any; status: string }) => {
       if (data.runId !== runId) return;
       setRun((prev: any) => prev ? { ...prev, metrics: data.metrics, status: data.status } : prev);
@@ -134,123 +131,130 @@ export default function LiveTraceWorkspace() {
 
   if (loading && !run) {
     return (
-      <div className="flex items-center justify-center py-24 space-x-3 text-gray-400">
-        <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
-        <span className="font-mono text-sm">Initializing trace stream recorder...</span>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#09090b] text-zinc-400 font-mono text-xs">
+        <RefreshCw className="h-5 w-5 animate-spin mb-2 text-blue-500" />
+        <span>Loading execution trace...</span>
       </div>
     );
   }
 
   if (error || !run) {
     return (
-      <div className="p-8 rounded-xl bg-arena-card border border-rose-500/30 text-center max-w-lg mx-auto">
-        <AlertCircle className="h-10 w-10 text-rose-500 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-white">Execution Trace Not Found</h2>
-        <p className="text-sm text-gray-400 mt-1 mb-4">{error || `Run ${runId} does not exist.`}</p>
-        <a href="/" className="px-4 py-2 bg-arena-bg border border-arena-border rounded-lg text-sm text-gray-200">
-          Back to Runs Overview
-        </a>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#09090b] p-4 font-mono text-xs">
+        <div className="p-6 rounded-lg bg-[#111114] border border-[#27272a] text-center max-w-sm">
+          <AlertCircle className="h-8 w-8 text-rose-500 mx-auto mb-2" />
+          <h2 className="text-sm font-semibold text-white">Execution Trace Not Found</h2>
+          <p className="text-zinc-500 mt-1 mb-4">{error || `Run ${runId} was not found.`}</p>
+          <Link href="/" className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded font-semibold">
+            Return to Studio
+          </Link>
+        </div>
       </div>
     );
   }
 
-  // Active events depending on replay mode
-  const displayedEvents = isReplayMode
-    ? events.slice(0, replayIndex + 1)
-    : events;
+  const displayedEvents = isReplayMode ? events.slice(0, replayIndex + 1) : events;
 
   return (
-    <div className="space-y-5">
-      {/* 1. Header */}
-      <TraceHeader
-        run={run}
-        isReplayMode={isReplayMode}
-        onToggleReplay={() => {
-          if (!isReplayMode) {
-            setReplayIndex(events.length - 1);
-          }
-          setIsReplayMode(!isReplayMode);
-        }}
-      />
+    <div className="min-h-screen w-screen bg-[#09090b] text-[#fafafa] font-sans flex flex-col overflow-y-auto">
+      {/* Top Header */}
+      <header className="h-12 border-b border-[#27272a] bg-[#111114] px-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center space-x-3">
+          <Link href="/" className="hover:opacity-90 transition-opacity">
+            <Logo size="sm" showSubtitle={false} />
+          </Link>
+          <span className="text-zinc-600">/</span>
+          <span className="font-mono text-xs font-semibold text-zinc-300">
+            Run: {run.id.slice(0, 8)}
+          </span>
+        </div>
+      </header>
 
-      {/* 2. Metrics Strip */}
-      <MetricsStrip metrics={run.metrics} />
-
-      {/* 3. Replay Controls (if active) */}
-      {isReplayMode && (
-        <ReplayControls
-          events={events}
-          currentIndex={replayIndex}
-          onIndexChange={(idx) => {
-            setReplayIndex(idx);
-            setSelectedEvent(events[idx]);
+      {/* Main Container */}
+      <div className="flex-1 p-5 space-y-4 max-w-7xl w-full mx-auto">
+        <TraceHeader
+          run={run}
+          isReplayMode={isReplayMode}
+          onToggleReplay={() => {
+            if (!isReplayMode) {
+              setReplayIndex(events.length - 1);
+            }
+            setIsReplayMode(!isReplayMode);
           }}
-          onClose={() => setIsReplayMode(false)}
         />
-      )}
 
-      {/* 4. Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* Left Column: Timeline / Waterfall */}
-        <div className={selectedEvent ? 'lg:col-span-7 xl:col-span-8 space-y-4' : 'lg:col-span-12 space-y-4'}>
-          {/* View Tab Selector */}
-          <div className="flex items-center space-x-2 border-b border-arena-border pb-2 text-xs font-mono">
-            <button
-              onClick={() => setActiveTab('timeline')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-                activeTab === 'timeline'
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Layers className="h-4 w-4" />
-              <span>CHRONOLOGICAL TIMELINE ({displayedEvents.length})</span>
-            </button>
+        <MetricsStrip metrics={run.metrics} />
 
-            <button
-              onClick={() => setActiveTab('waterfall')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-                activeTab === 'waterfall'
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <GitCommit className="h-4 w-4" />
-              <span>SPAN WATERFALL</span>
-            </button>
+        {isReplayMode && (
+          <ReplayControls
+            events={events}
+            currentIndex={replayIndex}
+            onIndexChange={(idx) => {
+              setReplayIndex(idx);
+              setSelectedEvent(events[idx]);
+            }}
+            onClose={() => setIsReplayMode(false)}
+          />
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <div className={selectedEvent ? 'lg:col-span-7 xl:col-span-8 space-y-3' : 'lg:col-span-12 space-y-3'}>
+            <div className="flex items-center space-x-1 p-0.5 rounded bg-[#111114] border border-[#27272a] text-xs font-mono w-fit">
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
+                  activeTab === 'timeline'
+                    ? 'bg-[#18181b] text-white font-semibold'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Layers className="h-3 w-3" />
+                <span>Timeline ({displayedEvents.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('waterfall')}
+                className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-[11px] transition-colors ${
+                  activeTab === 'waterfall'
+                    ? 'bg-[#18181b] text-white font-semibold'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <GitCommit className="h-3 w-3" />
+                <span>Span Waterfall</span>
+              </button>
+            </div>
+
+            {activeTab === 'timeline' ? (
+              <TimelineView
+                events={displayedEvents}
+                selectedEvent={selectedEvent}
+                onSelectEvent={(evt) => setSelectedEvent(evt)}
+                onJumpToLatest={() => {
+                  if (displayedEvents.length > 0) {
+                    setSelectedEvent(displayedEvents[displayedEvents.length - 1]);
+                  }
+                }}
+              />
+            ) : (
+              <WaterfallView
+                events={displayedEvents}
+                selectedEvent={selectedEvent}
+                onSelectEvent={(evt) => setSelectedEvent(evt)}
+              />
+            )}
           </div>
 
-          {activeTab === 'timeline' ? (
-            <TimelineView
-              events={displayedEvents}
-              selectedEvent={selectedEvent}
-              onSelectEvent={(evt) => setSelectedEvent(evt)}
-              onJumpToLatest={() => {
-                if (displayedEvents.length > 0) {
-                  setSelectedEvent(displayedEvents[displayedEvents.length - 1]);
-                }
-              }}
-            />
-          ) : (
-            <WaterfallView
-              events={displayedEvents}
-              selectedEvent={selectedEvent}
-              onSelectEvent={(evt) => setSelectedEvent(evt)}
-            />
+          {selectedEvent && (
+            <div className="lg:col-span-5 xl:col-span-4">
+              <EventInspector
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+              />
+            </div>
           )}
         </div>
-
-        {/* Right Column: Event Inspector */}
-        {selectedEvent && (
-          <div className="lg:col-span-5 xl:col-span-4">
-            <EventInspector
-              event={selectedEvent}
-              onClose={() => setSelectedEvent(null)}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
 }
-

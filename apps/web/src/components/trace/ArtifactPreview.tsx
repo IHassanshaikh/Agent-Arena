@@ -68,21 +68,21 @@ export const ArtifactPreview: React.FC<ArtifactPreviewProps> = ({ runId }) => {
 
   if (loading) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-black text-[#a1a1aa] font-mono">
-        <RefreshCw className="h-6 w-6 animate-spin mb-3 text-[#38bdf8]" />
-        <span className="text-sm font-medium text-white">Loading generated artifact...</span>
+      <div className="w-full h-full flex flex-col items-center justify-center bg-[#09090b] text-zinc-400 font-mono">
+        <RefreshCw className="h-5 w-5 animate-spin mb-2.5 text-zinc-400" />
+        <span className="text-xs text-zinc-300">Loading artifact...</span>
       </div>
     );
   }
 
   if (!artifact) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-black text-[#a1a1aa] font-mono p-6">
-        <div className="p-8 rounded-2xl bg-[#09090b] border border-[rgba(255,255,255,0.08)] max-w-md text-center shadow-2xl">
-          <FileCode className="h-10 w-10 text-[#38bdf8] mx-auto mb-3" />
-          <div className="text-base font-bold text-white mb-2">No Artifact Generated Yet</div>
-          <div className="text-xs text-[#a1a1aa] leading-relaxed">
-            The agent is still executing or no output file was created for this run. Type any instruction above and click <strong className="text-[#38bdf8]">[Run]</strong> to generate live HTML or code!
+      <div className="w-full h-full flex items-center justify-center bg-[#09090b] text-zinc-400 font-mono p-6">
+        <div className="p-6 rounded-lg bg-[#111114] border border-[#27272a] max-w-sm text-center shadow-lg">
+          <FileCode className="h-8 w-8 text-zinc-500 mx-auto mb-2.5" />
+          <div className="text-sm font-semibold text-zinc-200 mb-1">No Artifact Generated</div>
+          <div className="text-xs text-zinc-500 leading-relaxed">
+            The selected execution run did not generate or save any final file artifact.
           </div>
         </div>
       </div>
@@ -93,73 +93,74 @@ export const ArtifactPreview: React.FC<ArtifactPreviewProps> = ({ runId }) => {
   const isMarkdown = artifact.filename?.endsWith('.md');
   const isHtml = artifact.isHtml;
 
+  const viewportWidthClass =
+    viewport === 'mobile' ? 'max-w-[375px]' : viewport === 'tablet' ? 'max-w-[768px]' : 'w-full';
+
   return (
-    <div className="w-full h-full flex flex-col bg-black text-[#e4e4e7] overflow-hidden select-none font-sans">
+    <div className="w-full h-full flex flex-col bg-[#09090b] text-zinc-200 overflow-hidden select-none font-sans">
       {/* 1. Header Toolbar */}
-      <div className="h-12 border-b border-[#18181b] px-4 flex items-center justify-between bg-[#070709] shrink-0">
-        <div className="flex items-center space-x-4">
+      <div className="h-11 border-b border-[#27272a] px-3.5 flex items-center justify-between bg-[#111114] shrink-0">
+        <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <div className="p-1.5 rounded-lg bg-[#121217] text-[#38bdf8] border border-[rgba(255,255,255,0.08)]">
-              {isMarkdown ? <FileText className="h-4 w-4" /> : <FileCode className="h-4 w-4" />}
-            </div>
-            <div>
-              <span className="text-xs font-mono font-bold text-white">{artifact.filename}</span>
-              <span className="text-[11px] font-mono text-[#71717a] ml-2">
-                ({(artifact.size / 1024).toFixed(1)} KB)
-              </span>
-            </div>
+            <span className="p-1 rounded bg-[#18181b] text-zinc-300 border border-[#27272a]">
+              {isMarkdown ? <FileText className="h-3.5 w-3.5" /> : <FileCode className="h-3.5 w-3.5" />}
+            </span>
+            <span className="text-xs font-mono font-semibold text-zinc-100">{artifact.filename}</span>
+            <span className="text-[10px] font-mono text-zinc-500">
+              {(artifact.size / 1024).toFixed(1)} KB
+            </span>
           </div>
 
-          {/* Mode Switcher: Live Preview vs Source Code */}
+          {/* Mode Switcher */}
           {(isHtml || isMarkdown) && (
-            <div className="flex items-center p-0.5 rounded-lg bg-[#0e0e12] border border-[rgba(255,255,255,0.08)] text-xs font-mono">
+            <div className="flex items-center p-0.5 rounded-md bg-[#18181b] border border-[#27272a] text-xs font-mono">
               <button
                 onClick={() => setMode('preview')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-md transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-0.5 rounded text-[11px] transition-colors ${
                   mode === 'preview'
-                    ? 'bg-[#18181b] text-[#38bdf8] font-bold border border-[#38bdf8]/30'
-                    : 'text-[#71717a] hover:text-white'
+                    ? 'bg-[#27272a] text-zinc-100 font-semibold'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <Eye className="h-3.5 w-3.5" />
-                <span>{isHtml ? 'Live Preview' : 'Formatted View'}</span>
+                <Eye className="h-3 w-3" />
+                <span>{isHtml ? 'Preview' : 'Formatted'}</span>
               </button>
               <button
                 onClick={() => setMode('code')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-md transition-colors ${
+                className={`flex items-center space-x-1.5 px-2.5 py-0.5 rounded text-[11px] transition-colors ${
                   mode === 'code'
-                    ? 'bg-[#18181b] text-[#38bdf8] font-bold border border-[#38bdf8]/30'
-                    : 'text-[#71717a] hover:text-white'
+                    ? 'bg-[#27272a] text-zinc-100 font-semibold'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <Code className="h-3.5 w-3.5" />
-                <span>Source Code</span>
+                <Code className="h-3 w-3" />
+                <span>Code</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Viewport size controls for live preview */}
+        {/* Viewport size controls */}
         {mode === 'preview' && isHtml && (
-          <div className="hidden sm:flex items-center space-x-1 p-0.5 rounded-lg bg-[#0e0e12] border border-[rgba(255,255,255,0.08)] text-xs text-[#71717a]">
+          <div className="hidden sm:flex items-center space-x-1 p-0.5 rounded-md bg-[#18181b] border border-[#27272a] text-xs text-zinc-400">
             <button
               onClick={() => setViewport('desktop')}
-              className={`p-1.5 rounded-md ${viewport === 'desktop' ? 'bg-[#18181b] text-white' : 'hover:text-white'}`}
-              title="Desktop 100%"
+              className={`p-1 rounded ${viewport === 'desktop' ? 'bg-[#27272a] text-zinc-100' : 'hover:text-zinc-200'}`}
+              title="Desktop (100%)"
             >
               <Monitor className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewport('tablet')}
-              className={`p-1.5 rounded-md ${viewport === 'tablet' ? 'bg-[#18181b] text-white' : 'hover:text-white'}`}
-              title="Tablet 768px"
+              className={`p-1 rounded ${viewport === 'tablet' ? 'bg-[#27272a] text-zinc-100' : 'hover:text-zinc-200'}`}
+              title="Tablet (768px)"
             >
               <Tablet className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewport('mobile')}
-              className={`p-1.5 rounded-md ${viewport === 'mobile' ? 'bg-[#18181b] text-white' : 'hover:text-white'}`}
-              title="Mobile 375px"
+              className={`p-1 rounded ${viewport === 'mobile' ? 'bg-[#27272a] text-zinc-100' : 'hover:text-zinc-200'}`}
+              title="Mobile (375px)"
             >
               <Smartphone className="h-3.5 w-3.5" />
             </button>
@@ -167,12 +168,12 @@ export const ArtifactPreview: React.FC<ArtifactPreviewProps> = ({ runId }) => {
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-2 font-mono">
+        <div className="flex items-center space-x-1.5 font-mono text-xs">
           <button
             onClick={handleCopy}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-[#0e0e12] hover:bg-[#18181b] border border-[rgba(255,255,255,0.08)] text-xs text-[#a1a1aa] hover:text-white transition-colors"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-zinc-300 hover:text-white transition-colors"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-[#22c55e]" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
             <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
 
@@ -180,64 +181,46 @@ export const ArtifactPreview: React.FC<ArtifactPreviewProps> = ({ runId }) => {
             href={rawUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-[#0e0e12] hover:bg-[#18181b] border border-[rgba(255,255,255,0.08)] text-xs text-[#a1a1aa] hover:text-white transition-colors"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-zinc-300 hover:text-white transition-colors"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
-            <span>Open in Tab</span>
+            <ExternalLink className="h-3 w-3" />
+            <span>Open</span>
           </a>
 
           <button
             onClick={handleDownload}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs font-semibold transition-colors shadow"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3 w-3" />
             <span>Download</span>
           </button>
         </div>
       </div>
 
       {/* 2. Main Content Body */}
-      <div className="flex-1 overflow-hidden relative flex items-center justify-center p-4 bg-[#000000]">
+      <div className="flex-1 overflow-hidden relative flex items-center justify-center p-3 bg-[#09090b]">
         {mode === 'preview' && isHtml ? (
           <div
-            className={`h-full transition-all duration-200 border border-[#27272a] rounded-xl overflow-hidden shadow-2xl bg-white ${
-              viewport === 'desktop' ? 'w-full' : viewport === 'tablet' ? 'w-[768px]' : 'w-[375px]'
-            }`}
+            className={`h-full ${viewportWidthClass} transition-all duration-200 border border-[#27272a] rounded-lg overflow-hidden bg-white shadow-xl`}
           >
             <iframe
               srcDoc={artifact.content}
-              title="Artifact Live Preview"
-              sandbox="allow-scripts allow-forms allow-same-origin"
+              title="Artifact Preview"
               className="w-full h-full border-0"
+              sandbox="allow-scripts allow-same-origin"
             />
           </div>
         ) : mode === 'preview' && isMarkdown ? (
-          <div className="w-full h-full overflow-y-auto rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#09090b] p-8 max-w-3xl mx-auto text-gray-200 leading-relaxed shadow-xl">
-            <div className="flex items-center space-x-2 text-xs font-mono text-[#38bdf8] mb-4 pb-2 border-b border-[rgba(255,255,255,0.08)]">
-              <span>Verified Markdown Document</span>
-              <span>•</span>
-              <span className="text-[#a1a1aa]">{artifact.filename}</span>
-            </div>
-            <div className="prose prose-invert max-w-none text-sm space-y-4">
-              {artifact.content.split('\n\n').map((paragraph: string, idx: number) => {
-                if (paragraph.startsWith('# ')) {
-                  return <h1 key={idx} className="text-2xl font-bold text-white border-b border-zinc-800 pb-2">{paragraph.replace('# ', '')}</h1>;
-                }
-                if (paragraph.startsWith('## ')) {
-                  return <h2 key={idx} className="text-xl font-bold text-white mt-4">{paragraph.replace('## ', '')}</h2>;
-                }
-                if (paragraph.startsWith('### ')) {
-                  return <h3 key={idx} className="text-lg font-bold text-white mt-3">{paragraph.replace('### ', '')}</h3>;
-                }
-                return <p key={idx} className="text-[#d4d4d8] leading-7">{paragraph}</p>;
-              })}
-            </div>
+          <div className="w-full h-full overflow-y-auto p-6 max-w-4xl mx-auto bg-[#111114] border border-[#27272a] rounded-lg text-zinc-200 font-sans text-sm leading-relaxed whitespace-pre-wrap">
+            {artifact.content}
           </div>
         ) : (
-          <div className="w-full h-full overflow-auto rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#070709] p-4 font-mono text-xs text-[#e4e4e7] leading-relaxed">
-            <pre className="whitespace-pre">
-              {artifact.content}
-            </pre>
+          <div className="w-full h-full overflow-hidden bg-[#111114] border border-[#27272a] rounded-lg flex flex-col font-mono text-xs">
+            <div className="flex-1 overflow-auto p-4 text-zinc-300 leading-5">
+              <pre>
+                <code>{artifact.content}</code>
+              </pre>
+            </div>
           </div>
         )}
       </div>

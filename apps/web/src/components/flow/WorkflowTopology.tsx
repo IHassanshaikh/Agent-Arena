@@ -50,11 +50,11 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
 
   React.useEffect(() => {
     if (!zoomAction) return;
-    if (zoomAction.type === 'in') zoomIn({ duration: 250 });
-    else if (zoomAction.type === 'out') zoomOut({ duration: 250 });
-    else if (zoomAction.type === 'fit') fitView({ duration: 300, padding: 0.2 });
+    if (zoomAction.type === 'in') zoomIn({ duration: 200 });
+    else if (zoomAction.type === 'out') zoomOut({ duration: 200 });
+    else if (zoomAction.type === 'fit') fitView({ duration: 250, padding: 0.15 });
     else if (zoomAction.type === 'reset') {
-      setCenter(450, 220, { zoom: 1, duration: 250 });
+      setCenter(680, 200, { zoom: 0.85, duration: 200 });
     }
   }, [zoomAction, zoomIn, zoomOut, fitView, setCenter]);
 
@@ -72,7 +72,7 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
       if (taskPrompt.toLowerCase().includes('html') || taskPrompt.toLowerCase().includes('page') || taskPrompt.toLowerCase().includes('site')) {
         artifactName = 'index.html';
       } else if (taskPrompt.toLowerCase().includes('game') || taskPrompt.toLowerCase().includes('python') || taskPrompt.toLowerCase().includes('script')) {
-        artifactName = 'guess_the_number.py';
+        artifactName = 'script.py';
       } else if (taskPrompt.toLowerCase().includes('who is') || taskPrompt.toLowerCase().includes('about')) {
         artifactName = 'summary.md';
       } else {
@@ -88,7 +88,7 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
     const primaryModel = llmEvents[0]?.payload?.model?.replace('models/', '') || 'gemini-2.5-flash';
     const totalLlmDuration = llmEvents.reduce((sum, e) => sum + (e.payload?.latency_ms || 0), 0);
 
-    // Extract tool calls and sanitize names
+    // Extract tool calls
     const toolMap = new Map<string, { count: number; duration: number; error: boolean }>();
     (events || []).forEach((e) => {
       if (e.event_type?.startsWith('tool.')) {
@@ -113,7 +113,6 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
     const retryEvent = (events || []).find((e) => e.event_type === 'retry.scheduled');
     const hasRetry = Boolean(retryEvent);
 
-    // If no tools were found in events, provide sensible default tools based on task
     let toolList = Array.from(toolMap.entries()).map(([name, data]) => ({
       name,
       count: data.count,
@@ -140,56 +139,49 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
       }
     }
 
-    // ========================================================
-    // 1. FRONT OF WORKFLOW: User Prompt Input (x: 40, y: 160)
-    // ========================================================
+    // 1. Trigger Node (x: 40, y: 140)
     nodes.push({
       id: 'node-prompt',
       type: 'taskPrompt',
-      position: { x: 40, y: 160 },
+      position: { x: 40, y: 140 },
       data: {
-        label: taskPrompt.length > 22 ? taskPrompt.slice(0, 22) + '...' : taskPrompt,
+        label: taskPrompt,
         active: selectedEvent?.event_type === 'run.started'
       }
     });
 
-    // ========================================================
-    // 2. AGENT PLANNER (x: 230, y: 160)
-    // ========================================================
+    // 2. Agent Planner Node (x: 350, y: 140)
     nodes.push({
       id: 'node-agent',
       type: 'agentPlanner',
-      position: { x: 230, y: 160 },
+      position: { x: 350, y: 140 },
       data: {
-        label: 'Agent',
-        sublabel: 'decision',
+        label: 'ReAct Planner',
+        sublabel: 'Autonomous plan formulation',
         active: selectedEvent?.event_type === 'decision.summary'
       }
     });
 
-    // ========================================================
-    // 3. MODEL GATEWAY (x: 420, y: 160)
-    // ========================================================
+    // 3. Model Gateway Node (x: 660, y: 140)
     nodes.push({
       id: 'node-model',
       type: 'modelGateway',
-      position: { x: 420, y: 160 },
+      position: { x: 660, y: 140 },
       data: {
         label: primaryModel,
-        sublabel: totalTokens > 0 ? `${totalTokens.toLocaleString()} tok` : 'Model gateway',
+        sublabel: totalTokens > 0 ? `${totalTokens.toLocaleString()} tokens` : 'Gemini inference',
         active: selectedEvent?.event_type?.startsWith('llm.')
       }
     });
 
-    // ========================================================
-    // 4. TOOLS (x: 610)
-    // ========================================================
-    const toolYStart = 160 - ((toolList.length - 1) * 70) / 2;
+    // 4. Tools (x: 970)
+    const toolSpacing = 110;
+    const toolYStart = 140 - ((toolList.length - 1) * toolSpacing) / 2;
     toolList.forEach((tool, idx) => {
       nodes.push({
         id: `node-tool-${idx}`,
         type: 'toolExecution',
-        position: { x: 610, y: toolYStart + idx * 75 },
+        position: { x: 970, y: toolYStart + idx * toolSpacing },
         data: {
           label: tool.name,
           duration: tool.duration || 110,
@@ -200,14 +192,12 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
       });
     });
 
-    // ========================================================
-    // 5. RETRY & ARTIFACT OUTPUT (x: 830, y: 160)
-    // ========================================================
+    // 5. Retry & Artifact Output (x: 1280)
     if (hasRetry) {
       nodes.push({
         id: 'node-retry',
         type: 'retryRecovery',
-        position: { x: 610, y: toolYStart + toolList.length * 75 },
+        position: { x: 970, y: toolYStart + toolList.length * toolSpacing },
         data: {
           label: 'Retry recovery',
           attempt: retryEvent?.payload?.attempt || 2,
@@ -219,22 +209,20 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
     nodes.push({
       id: 'node-artifact',
       type: 'artifactOutput',
-      position: { x: 830, y: 160 },
+      position: { x: 1280, y: 140 },
       data: {
         label: artifactName,
         onClick: onViewArtifact
       }
     });
 
-    // ========================================================
-    // CONNECTION EDGES
-    // ========================================================
+    // EDGES
     const makeEdge = (
       id: string,
       source: string,
       target: string,
       label?: string,
-      color = '#38bdf8',
+      color = '#3f3f46',
       dashed = false
     ): Edge => ({
       id,
@@ -244,22 +232,23 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
       type: 'smoothstep',
       style: {
         stroke: color,
-        strokeWidth: 1.5,
+        strokeWidth: 2,
         ...(dashed ? { strokeDasharray: '4 4' } : {})
       },
-      labelStyle: { fill: '#cbd5e1', fontSize: 10, fontFamily: 'monospace', fontWeight: 600 },
-      labelBgStyle: { fill: '#0a0d14', stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 },
-      labelBgPadding: [4, 2] as [number, number],
-      markerEnd: { type: MarkerType.ArrowClosed, color, width: 12, height: 12 }
+      labelStyle: { fill: '#e4e4e7', fontSize: 10, fontFamily: 'monospace', fontWeight: 600 },
+      labelBgStyle: { fill: '#111114', stroke: '#27272a', strokeWidth: 1 },
+      labelBgPadding: [6, 3] as [number, number],
+      markerEnd: { type: MarkerType.ArrowClosed, color, width: 14, height: 14 }
     });
 
-    edges.push(makeEdge('e-prompt-agent', 'node-prompt', 'node-agent', 'start'));
+    edges.push(makeEdge('e-prompt-agent', 'node-prompt', 'node-agent', 'dispatch', '#3b82f6'));
     edges.push(
       makeEdge(
         'e-agent-model',
         'node-agent',
         'node-model',
-        totalLlmDuration > 0 ? `${(totalLlmDuration / 1000).toFixed(1)}s` : 'dispatch'
+        totalLlmDuration > 0 ? `${(totalLlmDuration / 1000).toFixed(1)}s` : 'query',
+        '#6366f1'
       )
     );
 
@@ -269,40 +258,40 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
           'e-model-tool0',
           'node-model',
           'node-tool-0',
-          `${toolList[0].duration || 110}ms`
+          `${toolList[0].duration || 110}ms`,
+          '#0284c7'
         )
       );
 
       for (let i = 0; i < toolList.length - 1; i++) {
-        edges.push(makeEdge(`e-tool-${i}-${i + 1}`, `node-tool-${i}`, `node-tool-${i + 1}`));
+        edges.push(makeEdge(`e-tool-${i}-${i + 1}`, `node-tool-${i}`, `node-tool-${i + 1}`, undefined, '#3f3f46'));
       }
 
       if (hasRetry) {
         const lastIdx = toolList.length - 1;
-        edges.push(makeEdge('e-tool-retry', `node-tool-${lastIdx}`, 'node-retry', 'fail', '#f43f5e', true));
-        edges.push(makeEdge('e-retry-artifact', 'node-retry', 'node-artifact', 'recovered', '#22c55e'));
+        edges.push(makeEdge('e-tool-retry', `node-tool-${lastIdx}`, 'node-retry', 'failure', '#ef4444', true));
+        edges.push(makeEdge('e-retry-artifact', 'node-retry', 'node-artifact', 'recovered', '#10b981'));
       } else {
         const lastIdx = toolList.length - 1;
-        edges.push(makeEdge('e-tool-artifact', `node-tool-${lastIdx}`, 'node-artifact', 'verified', '#22c55e'));
+        edges.push(makeEdge('e-tool-artifact', `node-tool-${lastIdx}`, 'node-artifact', 'verified', '#10b981'));
       }
     } else {
-      edges.push(makeEdge('e-model-artifact', 'node-model', 'node-artifact', 'done', '#22c55e'));
+      edges.push(makeEdge('e-model-artifact', 'node-model', 'node-artifact', 'completed', '#10b981'));
     }
 
     return { nodes, edges };
   }, [events, selectedEvent, onViewArtifact]);
 
   return (
-    <div className="relative w-full h-full bg-black select-none overflow-hidden font-sans">
-      {/* 100% Clean Unobstructed ReactFlow Canvas (No floating overlays in front) */}
+    <div className="relative w-full h-full bg-[#09090b] select-none overflow-hidden font-sans">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.5}
-        maxZoom={1.5}
+        minZoom={0.3}
+        maxZoom={1.8}
         onNodeClick={(_event, node) => {
           if (node.id === 'node-artifact' && onViewArtifact) {
             onViewArtifact();
@@ -310,10 +299,10 @@ const FlowCanvas: React.FC<WorkflowTopologyProps> = ({
             onSelectNode(node.id);
           }
         }}
-        className="bg-black"
+        className="bg-[#09090b]"
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#18181b" />
-        <Controls className="!bg-[#09090b] !border-white/10 !text-[#a1a1aa] !bottom-4 !right-4" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#27272a" />
+        <Controls className="!bg-[#111114] !border !border-[#27272a] !text-zinc-400 !bottom-4 !right-4 !rounded-lg overflow-hidden shadow-lg" />
       </ReactFlow>
     </div>
   );

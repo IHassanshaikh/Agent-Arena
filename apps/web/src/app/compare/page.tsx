@@ -12,7 +12,6 @@ import {
   Cpu,
   Clock,
   RotateCcw,
-  Sparkles,
   Trophy,
   ArrowRight,
   RefreshCw
@@ -28,6 +27,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { Logo } from '@/components/brand/Logo';
 
 function CompareContent() {
   const searchParams = useSearchParams();
@@ -65,7 +65,6 @@ function CompareContent() {
   const rightRun = comparisonData?.right?.run;
   const comp = comparisonData?.comparison;
 
-  // Chart data
   const chartData = leftRun && rightRun ? [
     {
       metric: 'Tokens (k)',
@@ -85,253 +84,223 @@ function CompareContent() {
   ] : [];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-arena-border pb-5">
-        <div>
-          <div className="flex items-center space-x-2 text-xs text-gray-400 mb-1">
-            <Link href="/" className="hover:text-blue-400 flex items-center space-x-1">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Runs Overview</span>
-            </Link>
-            <span>/</span>
-            <span className="text-gray-300">Run Comparison</span>
+    <div className="flex flex-col h-screen w-screen bg-[#09090b] text-[#fafafa] font-sans overflow-hidden">
+      {/* Top Header */}
+      <header className="h-12 border-b border-[#27272a] bg-[#111114] px-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center space-x-3">
+          <Link href="/" className="hover:opacity-90 transition-opacity">
+            <Logo size="sm" showSubtitle={false} />
+          </Link>
+          <span className="text-zinc-600">/</span>
+          <div className="flex items-center space-x-2 font-mono text-xs">
+            <GitCompare className="h-3.5 w-3.5 text-blue-400" />
+            <span className="font-semibold text-white">Run Comparison</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
-            <GitCompare className="h-6 w-6 text-blue-400" />
-            <span>Side-by-Side Agent Comparison</span>
-          </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Evaluate differences in task success, token consumption, cost, and failure resilience.
-          </p>
         </div>
-      </div>
+      </header>
 
-      {/* Run Selectors */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-arena-card p-4 rounded-xl border border-arena-border">
-        <div>
-          <label className="block text-xs font-mono font-semibold text-blue-400 mb-1.5 uppercase">
-            Run A (Baseline / Reference)
-          </label>
-          <select
-            value={leftId}
-            onChange={(e) => setLeftId(e.target.value)}
-            className="w-full p-2 rounded-lg bg-arena-bg border border-arena-border text-xs text-gray-200 focus:outline-none focus:border-blue-500 font-mono"
-          >
-            {runsList.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.agent_id} — {r.task_label?.slice(0, 40)} ({r.status}) [{r.id.slice(0, 8)}]
-              </option>
-            ))}
-          </select>
+      {/* Main Container */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4 max-w-7xl w-full mx-auto">
+        {/* Run Selector Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#111114] p-3.5 rounded-lg border border-[#27272a]">
+          <div>
+            <label className="block text-[11px] font-mono font-semibold text-blue-400 mb-1.5 uppercase tracking-wider">
+              Run A (Baseline / Reference)
+            </label>
+            <select
+              value={leftId}
+              onChange={(e) => setLeftId(e.target.value)}
+              className="w-full p-2 rounded bg-[#18181b] border border-[#27272a] text-xs text-zinc-200 focus:outline-none focus:border-blue-500 font-mono"
+            >
+              {runsList.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.agent_id} — {r.task_label?.slice(0, 36)} ({r.status}) [{r.id.slice(0, 8)}]
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-mono font-semibold text-indigo-400 mb-1.5 uppercase tracking-wider">
+              Run B (Alternative / Candidate)
+            </label>
+            <select
+              value={rightId}
+              onChange={(e) => setRightId(e.target.value)}
+              className="w-full p-2 rounded bg-[#18181b] border border-[#27272a] text-xs text-zinc-200 focus:outline-none focus:border-indigo-500 font-mono"
+            >
+              {runsList.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.agent_id} — {r.task_label?.slice(0, 36)} ({r.status}) [{r.id.slice(0, 8)}]
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-mono font-semibold text-purple-400 mb-1.5 uppercase">
-            Run B (Alternative / Candidate)
-          </label>
-          <select
-            value={rightId}
-            onChange={(e) => setRightId(e.target.value)}
-            className="w-full p-2 rounded-lg bg-arena-bg border border-arena-border text-xs text-gray-200 focus:outline-none focus:border-purple-500 font-mono"
-          >
-            {runsList.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.agent_id} — {r.task_label?.slice(0, 40)} ({r.status}) [{r.id.slice(0, 8)}]
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="text-center py-20 text-gray-400 flex items-center justify-center space-x-2">
-          <RefreshCw className="h-5 w-5 animate-spin text-blue-500" />
-          <span>Computing comparative trace metrics...</span>
-        </div>
-      ) : error ? (
-        <div className="p-6 rounded-xl bg-arena-card border border-rose-500/30 text-center text-rose-400 text-sm">
-          {error}
-        </div>
-      ) : !comparisonData ? (
-        <div className="text-center py-16 text-gray-500 text-sm">
-          Select two distinct runs above to view comparative analysis.
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Winner & Outcome Summary */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-purple-950/30 to-arena-card border border-arena-border flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                <Trophy className="h-5 w-5" />
-              </div>
-              <div>
-                <div className="text-xs font-mono text-gray-400 uppercase">Benchmark Outcome Evaluation</div>
-                <div className="text-base font-bold text-white">
-                  {comp.winner === 'left' ? `${leftRun.agent_id} demonstrated superior execution` : `${rightRun.agent_id} demonstrated superior execution`}
+        {loading ? (
+          <div className="text-center py-20 text-zinc-400 flex items-center justify-center space-x-2 font-mono text-xs">
+            <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
+            <span>Computing comparative metrics...</span>
+          </div>
+        ) : error ? (
+          <div className="p-4 rounded-lg bg-[#111114] border border-rose-500/40 text-center text-rose-400 text-xs font-mono">
+            {error}
+          </div>
+        ) : !comparisonData ? (
+          <div className="text-center py-16 text-zinc-500 font-mono text-xs">
+            Select two distinct runs above to view comparative analysis.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Outcome Summary Card */}
+            <div className="p-4 rounded-lg bg-[#111114] border border-[#27272a] flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 rounded bg-[#18181b] border border-[#27272a] flex items-center justify-center text-amber-400">
+                  <Trophy className="h-4 w-4" />
                 </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4 text-xs font-mono">
-              <div>
-                <span className="text-gray-400">Token Delta: </span>
-                <span className={comp.token_delta < 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                  {comp.token_delta > 0 ? '+' : ''}{formatTokens(comp.token_delta)} ({comp.token_delta_percent.toFixed(1)}%)
-                </span>
-              </div>
-              <span>•</span>
-              <div>
-                <span className="text-gray-400">Cost Delta: </span>
-                <span className={comp.cost_delta < 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                  {comp.cost_delta > 0 ? '+' : ''}{formatCost(comp.cost_delta)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Metric Diff Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Success */}
-            <div className="p-4 rounded-xl bg-arena-card border border-arena-border space-y-2">
-              <div className="text-xs font-mono text-gray-400">TASK SUCCESS</div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center space-x-1.5 text-blue-400 font-bold">
-                  {leftRun.status === 'completed' ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <XCircle className="h-4 w-4 text-rose-400" />}
-                  <span>{leftRun.status}</span>
-                </span>
-                <span className="text-gray-500">vs</span>
-                <span className="flex items-center space-x-1.5 text-purple-400 font-bold">
-                  {rightRun.status === 'completed' ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <XCircle className="h-4 w-4 text-rose-400" />}
-                  <span>{rightRun.status}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Total Tokens */}
-            <div className="p-4 rounded-xl bg-arena-card border border-arena-border space-y-2">
-              <div className="text-xs font-mono text-gray-400">TOTAL TOKENS</div>
-              <div className="flex items-center justify-between text-sm font-mono font-bold">
-                <span className="text-blue-400">{formatTokens(leftRun.metrics?.total_tokens)}</span>
-                <span className="text-gray-500">vs</span>
-                <span className="text-purple-400">{formatTokens(rightRun.metrics?.total_tokens)}</span>
-              </div>
-            </div>
-
-            {/* Cost */}
-            <div className="p-4 rounded-xl bg-arena-card border border-arena-border space-y-2">
-              <div className="text-xs font-mono text-gray-400">ESTIMATED COST</div>
-              <div className="flex items-center justify-between text-sm font-mono font-bold">
-                <span className="text-blue-400">{formatCost(leftRun.metrics?.estimated_cost_usd)}</span>
-                <span className="text-gray-500">vs</span>
-                <span className="text-purple-400">{formatCost(rightRun.metrics?.estimated_cost_usd)}</span>
-              </div>
-            </div>
-
-            {/* Retries & Recovery */}
-            <div className="p-4 rounded-xl bg-arena-card border border-arena-border space-y-2">
-              <div className="text-xs font-mono text-gray-400">RETRIES / RECOVERIES</div>
-              <div className="flex items-center justify-between text-sm font-mono font-bold">
-                <span className="text-blue-400">{leftRun.metrics?.retries || 0} retries</span>
-                <span className="text-gray-500">vs</span>
-                <span className="text-purple-400">{rightRun.metrics?.retries || 0} retries</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Comparative Chart */}
-          <div className="p-5 rounded-xl bg-arena-card border border-arena-border space-y-3">
-            <div className="text-xs font-mono font-semibold text-gray-300">
-              Comparative Consumption Breakdown
-            </div>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                  <XAxis dataKey="metric" stroke="#6b7280" textAnchor="middle" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#111622', borderColor: '#1e2638', color: '#fff' }}
-                  />
-                  <Legend />
-                  <Bar dataKey={leftRun.agent_id || 'Agent A'} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey={rightRun.agent_id || 'Agent B'} fill="#a855f7" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Synchronized Timeline Diff Streams */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Left Stream */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-arena-border pb-2">
-                <div className="font-bold text-sm text-blue-400 flex items-center space-x-1.5">
-                  <span>{leftRun.agent_id} Trace</span>
-                  <span className="text-xs font-mono text-gray-500">({comparisonData.left.events.length} events)</span>
-                </div>
-                <Link
-                  href={`/runs/${leftRun.id}`}
-                  className="text-xs text-blue-400 hover:underline flex items-center space-x-1"
-                >
-                  <span>Inspect Run</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-
-              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-                {comparisonData.left.events.map((evt: any) => (
-                  <div
-                    key={evt.id}
-                    className="p-2.5 rounded-lg bg-arena-card border border-arena-border text-xs space-y-1"
-                  >
-                    <div className="flex items-center justify-between font-mono text-[10px]">
-                      <span className="text-gray-400">#{evt.sequence} • {evt.event_type}</span>
-                      <span className="text-gray-500">{formatDuration(evt.duration_ms)}</span>
-                    </div>
-                    <div className="text-gray-300 font-mono text-[11px] truncate">
-                      {evt.payload?.summary || evt.payload?.result_summary || evt.payload?.tool_name || evt.payload?.model || evt.status}
-                    </div>
+                <div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">EVALUATION SUMMARY</div>
+                  <div className="text-sm font-semibold text-white">
+                    {comp.winner === 'left' ? `${leftRun.agent_id} outperformed in execution` : `${rightRun.agent_id} outperformed in execution`}
                   </div>
-                ))}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4 text-xs tabular-nums">
+                <div>
+                  <span className="text-zinc-500">Token Delta: </span>
+                  <span className={comp.token_delta <= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                    {comp.token_delta > 0 ? '+' : ''}{formatTokens(comp.token_delta)} ({comp.token_delta_percent.toFixed(1)}%)
+                  </span>
+                </div>
+                <span className="text-zinc-700">•</span>
+                <div>
+                  <span className="text-zinc-500">Cost Delta: </span>
+                  <span className={comp.cost_delta <= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                    {comp.cost_delta > 0 ? '+' : ''}{formatCost(comp.cost_delta)}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Right Stream */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-arena-border pb-2">
-                <div className="font-bold text-sm text-purple-400 flex items-center space-x-1.5">
-                  <span>{rightRun.agent_id} Trace</span>
-                  <span className="text-xs font-mono text-gray-500">({comparisonData.right.events.length} events)</span>
+            {/* Metric Comparison Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
+              <div className="p-3 rounded-lg bg-[#111114] border border-[#27272a] space-y-1.5">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider">STATUS</div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-blue-400 font-semibold">{leftRun.status}</span>
+                  <span className="text-zinc-600">vs</span>
+                  <span className="text-indigo-400 font-semibold">{rightRun.status}</span>
                 </div>
-                <Link
-                  href={`/runs/${rightRun.id}`}
-                  className="text-xs text-purple-400 hover:underline flex items-center space-x-1"
-                >
-                  <span>Inspect Run</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
               </div>
 
-              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-                {comparisonData.right.events.map((evt: any) => (
-                  <div
-                    key={evt.id}
-                    className="p-2.5 rounded-lg bg-arena-card border border-arena-border text-xs space-y-1"
-                  >
-                    <div className="flex items-center justify-between font-mono text-[10px]">
-                      <span className="text-gray-400">#{evt.sequence} • {evt.event_type}</span>
-                      <span className="text-gray-500">{formatDuration(evt.duration_ms)}</span>
-                    </div>
-                    <div className="text-gray-300 font-mono text-[11px] truncate">
-                      {evt.payload?.summary || evt.payload?.result_summary || evt.payload?.tool_name || evt.payload?.model || evt.status}
-                    </div>
+              <div className="p-3 rounded-lg bg-[#111114] border border-[#27272a] space-y-1.5">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider">TOTAL TOKENS</div>
+                <div className="flex items-center justify-between text-xs tabular-nums">
+                  <span className="text-blue-400 font-semibold">{formatTokens(leftRun.metrics?.total_tokens)}</span>
+                  <span className="text-zinc-600">vs</span>
+                  <span className="text-indigo-400 font-semibold">{formatTokens(rightRun.metrics?.total_tokens)}</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#111114] border border-[#27272a] space-y-1.5">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider">ESTIMATED COST</div>
+                <div className="flex items-center justify-between text-xs tabular-nums">
+                  <span className="text-blue-400 font-semibold">{formatCost(leftRun.metrics?.estimated_cost_usd)}</span>
+                  <span className="text-zinc-600">vs</span>
+                  <span className="text-indigo-400 font-semibold">{formatCost(rightRun.metrics?.estimated_cost_usd)}</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#111114] border border-[#27272a] space-y-1.5">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider">RETRIES / RECOVERIES</div>
+                <div className="flex items-center justify-between text-xs tabular-nums">
+                  <span className="text-blue-400 font-semibold">{leftRun.metrics?.retries || 0} retries</span>
+                  <span className="text-zinc-600">vs</span>
+                  <span className="text-indigo-400 font-semibold">{rightRun.metrics?.retries || 0} retries</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Comparative Bar Chart */}
+            <div className="p-4 rounded-lg bg-[#111114] border border-[#27272a] space-y-2">
+              <div className="text-xs font-mono font-semibold text-zinc-300">
+                Resource Consumption Breakdown
+              </div>
+              <div className="h-56 w-full font-mono text-xs">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 15, right: 20, left: 0, bottom: 5 }}>
+                    <XAxis dataKey="metric" stroke="#71717a" textAnchor="middle" />
+                    <YAxis stroke="#71717a" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#fafafa', borderRadius: '6px' }}
+                    />
+                    <Legend />
+                    <Bar dataKey={leftRun.agent_id || 'Agent A'} fill="#2563eb" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey={rightRun.agent_id || 'Agent B'} fill="#6366f1" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Side by side event lists */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+              {/* Left Stream */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b border-[#27272a] pb-1.5">
+                  <div className="font-semibold text-blue-400">
+                    <span>{leftRun.agent_id} ({comparisonData.left.events.length} events)</span>
                   </div>
-                ))}
+                </div>
+
+                <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
+                  {comparisonData.left.events.map((evt: any) => (
+                    <div
+                      key={evt.id}
+                      className="p-2 rounded bg-[#111114] border border-[#27272a] text-[11px] space-y-0.5"
+                    >
+                      <div className="flex items-center justify-between text-zinc-500 text-[10px]">
+                        <span>#{evt.sequence} • {evt.event_type}</span>
+                        <span>{formatDuration(evt.duration_ms)}</span>
+                      </div>
+                      <div className="text-zinc-300 truncate">
+                        {evt.payload?.summary || evt.payload?.result_summary || evt.payload?.tool_name || evt.payload?.model || evt.status}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Stream */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b border-[#27272a] pb-1.5">
+                  <div className="font-semibold text-indigo-400">
+                    <span>{rightRun.agent_id} ({comparisonData.right.events.length} events)</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
+                  {comparisonData.right.events.map((evt: any) => (
+                    <div
+                      key={evt.id}
+                      className="p-2 rounded bg-[#111114] border border-[#27272a] text-[11px] space-y-0.5"
+                    >
+                      <div className="flex items-center justify-between text-zinc-500 text-[10px]">
+                        <span>#{evt.sequence} • {evt.event_type}</span>
+                        <span>{formatDuration(evt.duration_ms)}</span>
+                      </div>
+                      <div className="text-zinc-300 truncate">
+                        {evt.payload?.summary || evt.payload?.result_summary || evt.payload?.tool_name || evt.payload?.model || evt.status}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -340,9 +309,9 @@ export default function RunComparisonPage() {
   return (
     <Suspense
       fallback={
-        <div className="text-center py-24 text-gray-400 flex items-center justify-center space-x-2">
-          <RefreshCw className="h-5 w-5 animate-spin text-blue-500" />
-          <span className="font-mono text-sm">Loading comparison workspace...</span>
+        <div className="text-center py-24 text-zinc-400 flex items-center justify-center space-x-2 font-mono text-xs">
+          <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
+          <span>Loading comparison workspace...</span>
         </div>
       }
     >
@@ -350,5 +319,3 @@ export default function RunComparisonPage() {
     </Suspense>
   );
 }
-
-

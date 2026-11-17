@@ -8,7 +8,6 @@ import {
   Wrench,
   AlertTriangle,
   RotateCcw,
-  Sparkles,
   Zap
 } from 'lucide-react';
 import { formatCost, formatDuration, formatTokens } from '@/lib/formatters';
@@ -32,93 +31,92 @@ export const MetricsStrip: React.FC<MetricsStripProps> = ({ metrics }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 font-mono text-xs">
       {/* 1. Total Tokens */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>TOKENS</span>
-          <Cpu className="h-3.5 w-3.5 text-purple-400" />
+          <Cpu className="h-3 w-3 text-indigo-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{formatTokens(m.total_tokens)}</div>
-        <div className="text-[10px] text-gray-500 font-mono truncate">
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{formatTokens(m.total_tokens)}</div>
+        <div className="text-[10px] text-zinc-500 truncate mt-0.5">
           {formatTokens(m.total_input_tokens)} in / {formatTokens(m.total_output_tokens)} out
         </div>
       </div>
 
       {/* 2. Estimated Cost */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>EST. COST</span>
-          <Coins className="h-3.5 w-3.5 text-amber-400" />
+          <Coins className="h-3 w-3 text-amber-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{formatCost(m.estimated_cost_usd)}</div>
-        <div className="text-[10px] text-amber-500/80 font-mono">v2026.11.1</div>
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{formatCost(m.estimated_cost_usd)}</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">standard tier</div>
       </div>
 
       {/* 3. Wall Time */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
-          <span>DURATION</span>
-          <Clock className="h-3.5 w-3.5 text-blue-400" />
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
+          <span>WALL TIME</span>
+          <Clock className="h-3 w-3 text-blue-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{formatDuration(m.duration_ms)}</div>
-        <div className="text-[10px] text-gray-500 font-mono">wall-clock time</div>
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{formatDuration(m.duration_ms)}</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">total execution</div>
       </div>
 
       {/* 4. Tool Time */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>TOOL TIME</span>
-          <Wrench className="h-3.5 w-3.5 text-cyan-400" />
+          <Wrench className="h-3 w-3 text-sky-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{formatDuration(m.tool_time_ms)}</div>
-        <div className="text-[10px] text-gray-500 font-mono">active tool spans</div>
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{formatDuration(m.tool_time_ms)}</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">active tool spans</div>
       </div>
 
       {/* 5. LLM Calls */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>MODEL CALLS</span>
-          <Zap className="h-3.5 w-3.5 text-indigo-400" />
+          <Zap className="h-3 w-3 text-indigo-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{m.model_calls}</div>
-        <div className="text-[10px] text-gray-500 font-mono">gateway requests</div>
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{m.model_calls}</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">gateway requests</div>
       </div>
 
       {/* 6. Tool Calls */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>TOOL CALLS</span>
-          <Wrench className="h-3.5 w-3.5 text-cyan-400" />
+          <Wrench className="h-3 w-3 text-sky-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">{m.tool_calls}</div>
-        <div className="text-[10px] text-gray-500 font-mono">invocations</div>
+        <div className="text-sm font-semibold text-white mt-1 tabular-nums">{m.tool_calls}</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">invocations</div>
       </div>
 
       {/* 7. Retries */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>RETRIES</span>
-          <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+          <RotateCcw className="h-3 w-3 text-amber-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">
+        <div className="text-sm font-semibold mt-1 tabular-nums">
           <span className={m.retries > 0 ? 'text-amber-400' : 'text-white'}>{m.retries}</span>
         </div>
-        <div className="text-[10px] text-gray-500 font-mono">resilience actions</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">resilience actions</div>
       </div>
 
       {/* 8. Failures */}
-      <div className="p-3 rounded-lg bg-arena-card border border-arena-border">
-        <div className="flex items-center justify-between text-gray-400 text-[11px] font-mono">
+      <div className="p-2.5 rounded-lg bg-[#111114] border border-[#27272a]">
+        <div className="flex items-center justify-between text-zinc-500 text-[10px]">
           <span>FAILURES</span>
-          <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />
+          <AlertTriangle className="h-3 w-3 text-rose-400" />
         </div>
-        <div className="text-base font-bold text-white mt-1 font-mono">
+        <div className="text-sm font-semibold mt-1 tabular-nums">
           <span className={m.failures > 0 ? 'text-rose-400' : 'text-white'}>{m.failures}</span>
         </div>
-        <div className="text-[10px] text-gray-500 font-mono">intercepted errors</div>
+        <div className="text-[10px] text-zinc-500 mt-0.5">intercepted errors</div>
       </div>
     </div>
   );
 };
-

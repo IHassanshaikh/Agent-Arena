@@ -47,7 +47,14 @@ agentarena/
 npm install
 ```
 
-### 2. Run Automated Test Suites
+### 2. Configure Environment (Optional)
+AgentArena works out of the box with embedded PostgreSQL (PGlite). To customize or enable live Gemini LLM agent runs:
+```bash
+cp .env.example .env
+```
+*(Add your `GEMINI_API_KEY` from [Google AI Studio](https://aistudio.google.com/) if executing live LLM prompts).*
+
+### 3. Run Automated Test Suites
 ```bash
 # Test event schemas, Zod validation, and pricing calculations
 npm run test:contract
@@ -56,12 +63,12 @@ npm run test:contract
 npm run test:api
 ```
 
-### 3. Seed Hackathon Demo Benchmark Data
+### 4. Seed Demo Benchmark Data
 ```bash
 npm run seed
 ```
 
-### 4. Start Development Servers
+### 5. Start Development Servers
 In terminal 1 (API & Socket.IO server on port 4000):
 ```bash
 npm run dev:api
@@ -74,7 +81,7 @@ npm run dev:web
 
 Open `http://localhost:3000` in your browser.
 
-### 5. Launch a Live Agent Run
+### 6. Launch a Live Agent Run
 - Click **"Launch Benchmark"** in the dashboard header.
 - Select **Agent Alpha** (Resilient with Retry Recovery) or **Agent Beta** (Baseline).
 - Check **"Seed Controlled Tool Failure"** to observe live failure interception and recovery!

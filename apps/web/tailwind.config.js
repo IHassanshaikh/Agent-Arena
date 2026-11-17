@@ -9,24 +9,28 @@ module.exports = {
     extend: {
       colors: {
         arena: {
-          bg: '#000000',
-          card: '#0a0a0a',
-          border: '#1f1f1f',
-          accent: '#3b82f6',
+          bg: '#09090b',
+          panel: '#111114',
+          card: '#18181b',
+          'card-hover': '#202024',
+          border: '#27272a',
+          'border-subtle': '#1e1e22',
+          accent: '#2563eb',
+          'accent-hover': '#1d4ed8',
           success: '#10b981',
           warning: '#f59e0b',
           error: '#ef4444',
-          llm: '#a855f7',
-          tool: '#06b6d4',
-          decision: '#14b8a6',
-          retry: '#f59e0b'
+          llm: '#6366f1',
+          tool: '#0284c7',
+          decision: '#0d9488',
+          retry: '#d97706'
         }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
       }
     },
   },
   plugins: [],
 };
-
